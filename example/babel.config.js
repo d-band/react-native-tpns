@@ -13,5 +13,6 @@ module.exports = {
         },
       },
     ],
+    'transform-inline-environment-variables',
   ],
 };

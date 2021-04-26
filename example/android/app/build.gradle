@@ -128,11 +128,19 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.reactnativetpns"
+        applicationId System.env.XG_PKG_ID
+        ndkVersion rootProject.ext.ndkVersion
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+            XG_ACCESS_ID : System.env.XG_ACCESS_ID,
+            XG_ACCESS_KEY : System.env.XG_ACCESS_KEY,
+            HW_APPID: System.env.XG_PUSH_HW_APP_ID,
+            VIVO_APPID: System.env.XG_PUSH_VIVO_APP_ID,
+            VIVO_APPKEY: System.env.XG_PUSH_VIVO_APP_KEY
+        ]
     }
     splits {
         abi {
@@ -182,7 +190,12 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
-
+    //导入第三方通道依赖
+    implementation 'com.tencent.tpns:huawei:+'
+    implementation 'com.tencent.tpns:xiaomi:+'
+    implementation 'com.tencent.tpns:meizu:+'
+    implementation 'com.tencent.tpns:vivo:+'
+    implementation 'com.tencent.tpns:oppo:+'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

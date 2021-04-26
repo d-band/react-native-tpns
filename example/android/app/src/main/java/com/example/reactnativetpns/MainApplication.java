@@ -2,15 +2,17 @@ package com.example.reactnativetpns;
 
 import android.app.Application;
 import android.content.Context;
+
+import com.dband.tpns.TPushPackage;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.soloader.SoLoader;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import com.reactnativetpns.TpnsPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -27,7 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for TpnsExample:
           // packages.add(new MyReactNativePackage());
-          packages.add(new TpnsPackage());
+          packages.add(new TPushPackage());
           return packages;
         }
 

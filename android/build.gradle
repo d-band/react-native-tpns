@@ -55,4 +55,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    //添加以下依赖
+    implementation 'com.tencent.jg:jg:1.1'
+    implementation 'com.tencent.tpns:tpns:+'
 }

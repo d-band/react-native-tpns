@@ -1,4 +1,102 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.reactnativetpns">
+  package="com.dband.tpns">
+  <!-- 【必须】 移动推送 TPNS SDK VIP版本所需权限 -->
+  <permission
+    android:name="${applicationId}.permission.XGPUSH_RECEIVE"
+    android:protectionLevel="signature" />
+  <uses-permission android:name="${applicationId}.permission.XGPUSH_RECEIVE" />
+  <!-- 【必须】 移动推送 TPNS SDK 所需权限 -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <!-- 【常用】 移动推送 TPNS SDK所需权限 -->
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+  <application>
+    <!-- 【必须】 移动推送 TPNS 默认通知 -->
+    <activity android:name="com.tencent.android.tpush.TpnsActivity"
+      android:theme="@android:style/Theme.Translucent.NoTitleBar">
+      <intent-filter>
+        <data
+          android:scheme="tpns"
+          android:host="${applicationId}"/>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+    <!-- 【必须】 移动推送 TPNS receiver广播接收 -->
+    <receiver
+      android:name="com.tencent.android.tpush.XGPushReceiver"
+      android:process=":xg_vip_service">
+      <intent-filter android:priority="0x7fffffff">
+        <!-- 【必须】 移动推送 TPNS SDK的内部广播 -->
+        <action android:name="com.tencent.android.xg.vip.action.SDK" />
+        <action android:name="com.tencent.android.xg.vip.action.INTERNAL_PUSH_MESSAGE" />
+        <action android:name="com.tencent.android.xg.vip.action.ACTION_SDK_KEEPALIVE" />
+        <!-- 【可选】 系统广播：网络切换 -->
+        <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+        <!-- 【可选】 系统广播：开屏 -->
+        <action android:name="android.intent.action.USER_PRESENT" />
+        <!-- 【可选】 一些常用的系统广播，增强移动推送 TPNS service的复活机会，请根据需要选择。当然，您也可以添加App自定义的一些广播让启动service -->
+        <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+        <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+        <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+      </intent-filter>
+    </receiver>
+    <!-- 【必须】移动推送 TPNS service -->
+    <service
+      android:name="com.tencent.android.tpush.service.XGVipPushService"
+      android:persistent="true"
+      android:process=":xg_vip_service" />
+    <!-- 【必须】通知 service -->
+    <service android:name="com.tencent.android.tpush.rpc.XGRemoteService">
+      <intent-filter>
+        <!-- 【必须】请修改为当前APP名包.XGVIP_PUSH_ACTION -->
+        <action android:name="${applicationId}.XGVIP_PUSH_ACTION" />
+      </intent-filter>
+    </service>
+    <!-- 【必须】 【注意】authorities修改为 包名.XGVIP_PUSH_AUTH -->
+    <provider
+      android:name="com.tencent.android.tpush.XGPushProvider"
+      android:authorities="${applicationId}.XGVIP_PUSH_AUTH" />
+    <provider
+      android:name="com.tencent.android.tpush.SettingsContentProvider"
+      android:authorities="${applicationId}.TPUSH_PROVIDER" />
+    <!-- 【可选】用于增强保活能力 -->
+    <provider
+      android:name="com.tencent.android.tpush.XGVipPushKAProvider"
+      android:authorities="${applicationId}.AUTH_XGPUSH_KEEPALIVE"
+      android:exported="true" />
+    <!-- 【可选】APP 实现的 Receiver，用于接收消息透传和操作结果的回调 -->
+    <receiver android:name="com.dband.tpns.MessageReceiver">
+      <intent-filter>
+        <!-- 接收消息透传 -->
+        <action android:name="com.tencent.android.xg.vip.action.PUSH_MESSAGE" />
+        <!-- 监听注册、反注册、设置/删除标签、通知被点击等处理结果 -->
+        <action android:name="com.tencent.android.xg.vip.action.FEEDBACK" />
+      </intent-filter>
+    </receiver>
+    <!-- MQTT START -->
+    <service android:exported="false"
+      android:process=":xg_vip_service"
+      android:name="com.tencent.tpns.mqttchannel.services.MqttService" />
+    <provider
+      android:exported="false"
+      android:name="com.tencent.tpns.baseapi.base.SettingsContentProvider"
+      android:authorities="${applicationId}.XG_SETTINGS_PROVIDER" />
+    <!-- MQTT END-->
+    <!-- 【必须】 请修改为APP的AccessId，“21”开头的10位数字，中间没空格 -->
+    <meta-data
+      android:name="XG_V2_ACCESS_ID"
+      android:value="${XG_ACCESS_ID}" />
+    <!-- 【必须】 请修改为APP的AccessKey，“A”开头的12位字符串，中间没空格 -->
+    <meta-data
+      android:name="XG_V2_ACCESS_KEY"
+      android:value="${XG_ACCESS_KEY}" />
+  </application>
 </manifest>
