@@ -47,6 +47,42 @@
 
 RCT_EXPORT_MODULE(TPushModule);
 
+static NSDictionary *FormatMessage(NSDictionary *message)
+{
+    NSMutableDictionary *data = [NSMutableDictionary dictionary];
+    if (message == nil) {
+        return data;
+    }
+    NSDictionary *xg = message[@"xg"];
+    data[@"custom"] = message[@"custom"];
+    if (![xg isEqual:[NSNull null]]) {
+        data[@"msgId"] = xg[@"msgid"];
+        data[@"pushChannel"] = xg[@"pushChannel"];
+        data[@"collapseId"] = xg[@"tpnsCollapseId"];
+        data[@"templateId"] = xg[@"templateId"];
+        data[@"traceId"] = xg[@"traceId"];
+        data[@"msgType"] = xg[@"msgtype"];
+        data[@"groupId"] = xg[@"groupId"];
+        data[@"targetType"] = xg[@"targettype"];
+        data[@"pushTime"] = xg[@"pushTime"];
+    }
+    NSDictionary *aps = message[@"aps"];
+    if (![aps isEqual:[NSNull null]]) {
+        NSDictionary *alert = aps[@"alert"];
+        if (![alert isEqual:[NSNull null]]) {
+            data[@"title"] = alert[@"title"];
+            data[@"body"] = alert[@"body"];
+            data[@"subtitle"] = alert[@"subtitle"];
+        }
+        data[@"badge"] = aps[@"badge"];
+        data[@"sound"] = aps[@"sound"];
+        data[@"category"] = aps[@"category"];
+        data[@"badgeType"] = aps[@"badge_type"];
+        data[@"mutableContent"] = aps[@"mutable-content"];
+    }
+    return data;
+}
+
 + (BOOL)requiresMainQueueSetup
 {
     return YES;
@@ -122,9 +158,9 @@ RCT_EXPORT_METHOD(upsertAccounts:(nonnull NSArray<NSDictionary *> *)accounts)
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     for (id item in accounts) {
-        NSString *name = [item objectForKey:@"name"];
-        NSNumber *type = [item objectForKey:@"type"];
-        [dict setObject:name forKey:type];
+        NSString *name = item[@"name"];
+        NSNumber *type = item[@"type"];
+        dict[type] = name;
     }
     [[XGPushTokenManager defaultTokenManager] upsertAccountsByDict:dict];
 }
@@ -245,14 +281,15 @@ RCT_EXPORT_METHOD(setAppBadge:(int)badgeSum)
 /// 统一点击回调
 /// @param response 如果iOS 10+/macOS 10.14+则为UNNotificationResponse，低于目标版本则为NSDictionary
 - (void)xgPushDidReceiveNotificationResponse:(nonnull id)response withCompletionHandler:(nonnull void (^)(void))completionHandler {
-    NSDictionary *result = nil;
+    NSDictionary *message = nil;
     if ([response isKindOfClass:[UNNotificationResponse class]]) {
         /// iOS10+消息体获取
-        result = ((UNNotificationResponse *)response).notification.request.content.userInfo;
+        message = ((UNNotificationResponse *)response).notification.request.content.userInfo;
     } else if ([response isKindOfClass:[NSDictionary class]]) {
         /// <IOS10消息体获取
-        result = response;
+        message = response;
     }
+    NSDictionary *result = @{@"code": @0, @"data": FormatMessage(message)};
     completionHandler();
     [self sendEventWithName:ClickAction body:result];
 }
@@ -262,17 +299,17 @@ RCT_EXPORT_METHOD(setAppBadge:(int)badgeSum)
 /// @note 此回调为前台收到通知消息及所有状态下收到静默消息的回调（消息点击需使用统一点击回调）
 /// 区分消息类型说明：xg字段里的msgtype为1则代表通知消息msgtype为2则代表静默消息
 - (void)xgPushDidReceiveRemoteNotification:(nonnull id)notification withCompletionHandler:(nullable void (^)(NSUInteger))completionHandler {
-    NSDictionary *result = nil;
+    NSDictionary *message = nil;
     if ([notification isKindOfClass:[UNNotification class]]) {
-        result = ((UNNotification *)notification).request.content.userInfo;
+        message = ((UNNotification *)notification).request.content.userInfo;
         completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
     } else if ([notification isKindOfClass:[NSDictionary class]]) {
-        result = notification;
+        message = notification;
         completionHandler(UIBackgroundFetchResultNewData);
     }
-
-    NSDictionary *tpnsInfo = result[@"xg"];
-    NSNumber *msgType = tpnsInfo[@"msgtype"];
+    NSDictionary *data = FormatMessage(message);
+    NSNumber *msgType = data[@"msgType"];
+    NSDictionary *result = @{@"code": @0, @"data": data};
     if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && msgType.integerValue == 1) {
         /// 前台收到通知消息
         [self sendEventWithName:OnReceiveNotificationResponse body:result];

@@ -129,50 +129,44 @@ public class MessageReceiver extends XGPushBaseReceiver {
      */
     @Override
     public void onTextMessage(Context context, XGPushTextMessage message) {
-        String content = message.getContent();
-        String customContent = message.getCustomContent();
-        String title = message.getTitle();
-        int pushChannel = message.getPushChannel();
-        WritableMap map = Arguments.createMap();
-        map.putString(Extras.TITLE, title);
-        map.putString(Extras.CONTENT, content);
-        map.putString(Extras.CUSTOM_MESSAGE, customContent);
-        map.putString(Extras.PUSH_CHANNEL, String.valueOf(pushChannel));
-        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_MESSAGE, map);
+        WritableMap data = Arguments.createMap();
+        data.putString(Extras.TITLE, message.getTitle());
+        data.putString(Extras.BODY, message.getContent());
+        data.putString(Extras.CUSTOM, message.getCustomContent());
+        data.putInt(Extras.PUSH_CHANNEL, message.getPushChannel());
+        WritableMap result = Arguments.createMap();
+        result.putInt(Extras.CODE, 0);
+        result.putMap(Extras.DATA, data);
+        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_MESSAGE, result);
     }
 
     /**
      * 通知栏消息点击回调
      *
      * @param context         上下文
-     * @param result 信鸽推送消息点击结果
+     * @param message 信鸽推送消息点击结果
      */
     @Override
-    public void onNotificationClickedResult(Context context, XGPushClickedResult result) {
-        WritableMap map = Arguments.createMap();
-        if (context == null || result == null) {
-            map.putInt(Extras.CODE, -1);
-            TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, map);
+    public void onNotificationClickedResult(Context context, XGPushClickedResult message) {
+        WritableMap result = Arguments.createMap();
+        if (context == null || message == null) {
+            result.putInt(Extras.CODE, -1);
+            TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
             return;
         }
-        String content = result.getContent();
-        String customContent = result.getCustomContent();
-        String title = result.getTitle();
-        int notificationActionType = result.getNotificationActionType();
-        long msgId = result.getMsgId();
-        String activityName = result.getActivityName();
-        long actionType = result.getActionType();
-
-        map.putInt(Extras.CODE, 0);
-        map.putString(Extras.TITLE, title);
-        map.putString(Extras.CONTENT, content);
-        map.putString(Extras.CUSTOM_MESSAGE, customContent);
-        map.putString(Extras.MSG_ID, String.valueOf(msgId));
-        map.putString(Extras.NOTIFICATION_ACTION_TYPE, String.valueOf(notificationActionType));
-        map.putString(Extras.ACTIVITY_NAME, activityName);
-        map.putString(Extras.ACTION_TYPE, String.valueOf(actionType));
-        //交由Flutter自主处理
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, map);
+        WritableMap data = Arguments.createMap();
+        data.putInt(Extras.MSG_ID, (int) message.getMsgId());
+        data.putString(Extras.TITLE, message.getTitle());
+        data.putString(Extras.BODY, message.getContent());
+        data.putString(Extras.CUSTOM, message.getCustomContent());
+        data.putInt(Extras.PUSH_CHANNEL, message.getPushChannel());
+        data.putString(Extras.ACTION, message.getActivityName());
+        data.putInt(Extras.ACTION_TYPE, message.getNotificationActionType());
+        data.putString(Extras.TEMPLATE_ID, message.getTemplateId());
+        data.putString(Extras.TRACE_ID, message.getTraceId());
+        result.putInt(Extras.CODE, 0);
+        result.putMap(Extras.DATA, data);
+        TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
     }
 
     /**
@@ -183,30 +177,25 @@ public class MessageReceiver extends XGPushBaseReceiver {
      */
     @Override
     public void onNotificationShowedResult(Context context, XGPushShowedResult message) {
-        WritableMap para = Arguments.createMap();
+        WritableMap result = Arguments.createMap();
         if (context == null || message == null) {
-            para.putInt(Extras.CODE, -1);
-            TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, para);
+            result.putInt(Extras.CODE, -1);
+            TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
             return;
         }
-        String content = message.getContent();
-        String customContent = message.getCustomContent();
-        int notificationId = message.getNotifactionId();
-        String title = message.getTitle();
-        long msgId = message.getMsgId();
-        String activityPath = message.getActivity();
-        int pushChannel = message.getPushChannel();
-        int notificationActionType = message.getNotificationActionType();
-
-        para.putInt(Extras.CODE, 0);
-        para.putString(Extras.CONTENT, content);
-        para.putString(Extras.CUSTOM_MESSAGE, customContent);
-        para.putString(Extras.TITLE, title);
-        para.putString(Extras.PUSH_CHANNEL, String.valueOf(pushChannel));
-        para.putString(Extras.NOTIFICATION_ID, String.valueOf(notificationId));
-        para.putString(Extras.MSG_ID, String.valueOf(msgId));
-        para.putString(Extras.ACTIVITY, activityPath);
-        para.putString(Extras.NOTIFICATION_ACTION_TYPE, String.valueOf(notificationActionType));
-        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, para);
+        WritableMap data = Arguments.createMap();
+        data.putInt(Extras.MSG_ID, (int) message.getMsgId());
+        data.putString(Extras.TITLE, message.getTitle());
+        data.putString(Extras.BODY, message.getContent());
+        data.putString(Extras.CUSTOM, message.getCustomContent());
+        data.putInt(Extras.PUSH_CHANNEL, message.getPushChannel());
+        data.putString(Extras.ACTION, message.getActivity());
+        data.putInt(Extras.ACTION_TYPE, message.getNotificationActionType());
+        data.putString(Extras.TEMPLATE_ID, message.getTemplateId());
+        data.putString(Extras.TRACE_ID, message.getTraceId());
+        data.putInt(Extras.COLLAPSE_ID, message.getNotifactionId());
+        result.putInt(Extras.CODE, 0);
+        result.putMap(Extras.DATA, data);
+        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
     }
 }

@@ -1,11 +1,12 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import type {
-  AccountEvent,
   AccountInfo,
+  AccountEvent,
   AttrEvent,
-  Result,
   TagEvent,
+  Result,
   TokenResult,
+  MessageResult,
 } from './types';
 
 export * from './types';
@@ -186,17 +187,7 @@ export default class TPush {
 
   /// 收到通知消息回调
   static addOnReceiveNotificationResponseListener(
-    callback: (data: {
-      resultCode: number;
-      title?: string;
-      content?: string;
-      customMessage?: string;
-      pushChannel?: string;
-      notifactionId?: string;
-      msgId?: string;
-      activity?: string;
-      notifactionActionType?: string;
-    }) => void
+    callback: (data: MessageResult) => void
   ) {
     const listener = PushEventEmitter.addListener(
       OnReceiveNotificationResponse,
@@ -206,31 +197,13 @@ export default class TPush {
   }
 
   /// 收到透传、静默消息回调
-  static addOnReceiveMessageListener(
-    callback: (data: {
-      title: string;
-      content: string;
-      customMessage: string;
-      pushChannel: string;
-    }) => void
-  ) {
+  static addOnReceiveMessageListener(callback: (data: MessageResult) => void) {
     const listener = PushEventEmitter.addListener(OnReceiveMessage, callback);
     listeners.set(callback, listener);
   }
 
   /// 通知点击回调
-  static addClickActionListener(
-    callback: (data: {
-      resultCode: number;
-      title?: string;
-      content?: string;
-      customMessage?: string;
-      msgId?: string;
-      activityName?: string;
-      notifactionActionType?: string;
-      actionType?: string;
-    }) => void
-  ) {
+  static addClickActionListener(callback: (data: MessageResult) => void) {
     const listener = PushEventEmitter.addListener(ClickAction, callback);
     listeners.set(callback, listener);
   }

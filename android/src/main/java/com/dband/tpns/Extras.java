@@ -4,17 +4,19 @@ package com.dband.tpns;
 public interface Extras {
     String TAGS = "tags";
     //参数
-    String CONTENT = "content";
     String CODE = "code";
+    String CONTENT = "content";
+    String DATA = "data";
     String FLAG = "flag";
     String TITLE = "title";
-    String CUSTOM_MESSAGE = "customMessage";
+    String BODY = "body";
+    String CUSTOM = "custom";
     String PUSH_CHANNEL = "pushChannel";
-    String NOTIFICATION_ID = "notificationId";
-    String NOTIFICATION_ACTION_TYPE = "notificationActionType";
     String MSG_ID = "msgId";
-    String ACTIVITY = "activity";
-    String ACTIVITY_NAME = "activityName";
+    String TRACE_ID = "traceId";
+    String TEMPLATE_ID = "templateId";
+    String COLLAPSE_ID = "collapseId";
+    String ACTION = "action";
     String ACTION_TYPE = "actionType";
     String XG_TOKEN = "xgToken";
 

@@ -45,10 +45,39 @@ export interface AccountInfo {
 }
 
 export interface Result {
-  resultCode: number;
+  code: number;
   content?: string;
 }
 
 export interface TokenResult extends Result {
   xgToken: string;
+}
+
+export type Message = {
+  msgId?: number;
+  title: string;
+  body: string;
+  pushChannel?: number;
+  collapseId?: number;
+  templateId?: string;
+  traceId?: string;
+  custom?: string;
+  // android
+  action?: string;
+  actionType?: number;
+  // ios
+  msgType?: number;
+  groupId?: string;
+  badge?: number;
+  sound?: string;
+  subtitle?: string;
+  category?: string;
+  badgeType?: number;
+  mutableContent?: number;
+  targetType?: number;
+  pushTime?: number;
+};
+
+export interface MessageResult extends Result {
+  data?: Message;
 }
