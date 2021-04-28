@@ -10,6 +10,8 @@ import com.tencent.android.tpush.XGPushTextMessage;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 
 public class MessageReceiver extends XGPushBaseReceiver {
     /**
@@ -26,9 +28,9 @@ public class MessageReceiver extends XGPushBaseReceiver {
         String token = message.getToken();
         map.putString(Extras.XG_TOKEN, token);
         if (errorCode == XGPushBaseReceiver.SUCCESS) {
-            TPushModule.instance.sendEvent(Extras.ON_REGISTERED_DONE, map);
+            this.sendEvent(Extras.ON_REGISTERED_DONE, map);
         } else {
-            TPushModule.instance.sendEvent(Extras.ON_REGISTERED_DEVICE_TOKEN, map);
+            this.sendEvent(Extras.ON_REGISTERED_DEVICE_TOKEN, map);
         }
     }
 
@@ -42,7 +44,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
     public void onUnregisterResult(Context context, int errorCode) {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
-        TPushModule.instance.sendEvent(Extras.UN_REGISTERED, map);
+        this.sendEvent(Extras.UN_REGISTERED, map);
     }
 
     /**
@@ -57,7 +59,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_SET_TAG, map);
+        this.sendEvent(Extras.XG_PUSH_DID_SET_TAG, map);
     }
 
     /**
@@ -72,7 +74,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_DELETE_TAG, map);
+        this.sendEvent(Extras.XG_PUSH_DID_DELETE_TAG, map);
     }
 
     /**
@@ -87,7 +89,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_SET_ACCOUNT, map);
+        this.sendEvent(Extras.XG_PUSH_DID_SET_ACCOUNT, map);
     }
 
     /**
@@ -102,7 +104,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_DELETE_ACCOUNT, map);
+        this.sendEvent(Extras.XG_PUSH_DID_DELETE_ACCOUNT, map);
     }
 
     @Override
@@ -110,7 +112,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_SET_ATTRIBUTE, map);
+        this.sendEvent(Extras.XG_PUSH_DID_SET_ATTRIBUTE, map);
     }
 
     @Override
@@ -118,7 +120,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);
         map.putString(Extras.CONTENT, msg);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_DID_DELETE_ATTRIBUTE, map);
+        this.sendEvent(Extras.XG_PUSH_DID_DELETE_ATTRIBUTE, map);
     }
 
     /**
@@ -137,7 +139,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap result = Arguments.createMap();
         result.putInt(Extras.CODE, 0);
         result.putMap(Extras.DATA, data);
-        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_MESSAGE, result);
+        this.sendEvent(Extras.ON_RECEIVE_MESSAGE, result);
     }
 
     /**
@@ -151,7 +153,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap result = Arguments.createMap();
         if (context == null || message == null) {
             result.putInt(Extras.CODE, -1);
-            TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
+            this.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
             return;
         }
         WritableMap data = Arguments.createMap();
@@ -166,7 +168,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         data.putString(Extras.TRACE_ID, message.getTraceId());
         result.putInt(Extras.CODE, 0);
         result.putMap(Extras.DATA, data);
-        TPushModule.instance.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
+        this.sendEvent(Extras.XG_PUSH_CLICK_ACTION, result);
     }
 
     /**
@@ -180,7 +182,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         WritableMap result = Arguments.createMap();
         if (context == null || message == null) {
             result.putInt(Extras.CODE, -1);
-            TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
+            this.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
             return;
         }
         WritableMap data = Arguments.createMap();
@@ -196,6 +198,12 @@ public class MessageReceiver extends XGPushBaseReceiver {
         data.putInt(Extras.COLLAPSE_ID, message.getNotifactionId());
         result.putInt(Extras.CODE, 0);
         result.putMap(Extras.DATA, data);
-        TPushModule.instance.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
+        this.sendEvent(Extras.ON_RECEIVE_NOTIFICATION_RESPONSE, result);
+    }
+
+    public void sendEvent(String eventName, @Nullable WritableMap params) {
+        if (TPushModule.instance != null) {
+            TPushModule.instance.sendEvent(eventName, params);
+        }
     }
 }
