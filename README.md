@@ -11,7 +11,7 @@ npm install react-native-tpns
 ## Usage
 
 ```js
-import TPush, { AccountEvent, TagEvent } from "react-native-tpns";
+import TPush, { TPushEvent } from "react-native-tpns";
 
 // ...
 // 设置 Debug 模式
@@ -32,23 +32,48 @@ TPush.setTags(['TPNS_RN_2']);
 TPush.delTags(['TPNS_RN']);
 TPush.clearTags();
 /** 事件 **/
-TPush.addOnRegisteredDeviceTokenListener((data) => {});
-TPush.addOnRegisteredDoneListener((data) => {});
-TPush.addUnRegisteredListener((data) => {});
-TPush.addOnReceiveNotificationResponseListener((data) => {});
-TPush.addOnReceiveMessageListener((data) => {});
-TPush.addClickActionListener((data) => {});
-// 设置角标回调（仅iOS）
-TPush.addDidSetBadgeListener((data) => {});
-// Account 相关回调
-TPush.addAccountListener(AccountEvent.UPSERT, (data) => {});
-TPush.addAccountListener(AccountEvent.DEL, (data) => {});
-TPush.addAccountListener(AccountEvent.CLEAR, (data) => {});
-// Tag 相关回调
-TPush.addTagListener(TagEvent.ADD, (data) => {});
-TPush.addTagListener(TagEvent.SET, (data) => {});
-TPush.addTagListener(TagEvent.DEL, (data) => {});
-TPush.addTagListener(TagEvent.CLEAR, (data) => {});
+TPush.onRegister((data) => {
+  console.log('onRegister', JSON.stringify(data));
+});
+// 收到通知消息
+TPush.onNoticeReceived((data) => {
+  console.log('onNoticeReceived', JSON.stringify(data));
+});
+// 通知消息被点击
+TPush.onNoticeClicked((data) => {
+  console.log('onNoticeClicked', JSON.stringify(data));
+});
+// 收到透传或静默消息
+TPush.onMessageReceived((data) => {
+  console.log('onMessageReceived', JSON.stringify(data));
+});
+//设置角标回调（仅iOS）
+TPush.addListener(TPushEvent.SET_BADGE, (data) => {
+  console.log('setBadge', JSON.stringify(data));
+});
+// Account 相关事件
+TPush.addListener(TPushEvent.UPSERT_ACCOUNTS, (data) => {
+  console.log('upsertAccounts', JSON.stringify(data));
+});
+TPush.addListener(TPushEvent.DEL_ACCOUNTS, (data) => {
+  console.log('delAccounts', JSON.stringify(data));
+});
+TPush.addListener(TPushEvent.CLEAR_ACCOUNTS, (data) => {
+  console.log('clearAccounts', JSON.stringify(data));
+});
+// Tag 相关事件
+TPush.addListener(TPushEvent.ADD_TAGS, (data) => {
+  console.log('addTags', JSON.stringify(data));
+});
+TPush.addListener(TPushEvent.SET_TAGS, (data) => {
+  console.log('setTags', JSON.stringify(data));
+});
+TPush.addListener(TPushEvent.DEL_TAGS, (data) => {
+  console.log('delTags', JSON.stringify(data));
+});
+TPush.addListener(TPushEvent.CLEAR_TAGS, (data) => {
+  console.log('clearTags', JSON.stringify(data));
+});
 ```
 
 ## Contributing

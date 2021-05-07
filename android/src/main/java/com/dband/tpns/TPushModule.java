@@ -30,11 +30,40 @@ public class TPushModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext reactContext;
     public static final String TAG = "TPushModule";
     public static TPushModule instance;
+    public static Map<String, List<WritableMap>> eventCache = new HashMap<>();
+    public static Map<String, Boolean> hasListen = new HashMap<>();
 
     public TPushModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         instance = this;
+    }
+
+    public static void sendEvent(String event, @Nullable WritableMap params) {
+        if (instance != null && hasListen.containsKey(event)) {
+            instance.doSend(event, params);
+        } else {
+            if (!eventCache.containsKey(event)) {
+                eventCache.put(event, new ArrayList<>());
+            }
+            eventCache.get(event).add(params);
+        }
+    }
+
+    public void doSend(String eventName, @Nullable WritableMap params) {
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit(eventName, params);
+    }
+
+    @ReactMethod
+    public void startListen(String event) {
+        hasListen.put(event, true);
+        List<WritableMap> list = eventCache.remove(event);
+        if (list != null && !list.isEmpty()) {
+            for (WritableMap map: list) {
+                doSend(event, map);
+            }
+        }
     }
 
     @NonNull
@@ -113,7 +142,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setTags(ReadableArray tags) {
         String op = "clearAndAppendTags:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_SET_TAGS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_SET_TAGS);
         XGPushManager.clearAndAppendTags(reactContext, op, toSet(tags), callback);
     }
 
@@ -123,7 +152,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void addTags(ReadableArray tags) {
         String op = "appendTags:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_ADD_TAGS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_ADD_TAGS);
         XGPushManager.appendTags(reactContext, op, toSet(tags), callback);
     }
 
@@ -133,7 +162,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void delTags(ReadableArray tags) {
         String op = "delTags:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_DEL_TAGS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_DEL_TAGS);
         XGPushManager.delTags(reactContext, op, toSet(tags), callback);
     }
 
@@ -143,7 +172,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void clearTags() {
         String op = "clearTags:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_CLEAR_TAGS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_CLEAR_TAGS);
         XGPushManager.clearTags(reactContext, op, callback);
     }
 
@@ -153,7 +182,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void addAttrs(ReadableMap data) {
         String op = "addAttrs:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_ADD_ATTRS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_ADD_ATTRS);
         XGPushManager.upsertAttributes(reactContext, op, toMap(data), callback);
     }
 
@@ -163,7 +192,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setAttrs(ReadableMap data) {
         String op = "setAttrs:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_SET_ATTRS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_SET_ATTRS);
         XGPushManager.clearAndAppendAttributes(reactContext, op, toMap(data), callback);
     }
 
@@ -173,7 +202,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void delAttrs(ReadableArray keys) {
         String op = "delAttrs:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_DEL_ATTRS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_DEL_ATTRS);
         XGPushManager.delAttributes(reactContext, op, toSet(keys), callback);
     }
 
@@ -183,7 +212,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void clearAttrs() {
         String op = "clearAttrs:" + System.currentTimeMillis();
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_CLEAR_ATTRS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_CLEAR_ATTRS);
         XGPushManager.clearAttributes(reactContext, op, callback);
     }
 
@@ -209,7 +238,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
             int type = account.getInt("type");
             list.add(new XGPushManager.AccountInfo(type, name));
         }
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_UPSERT_ACCOUNTS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_UPSERT_ACCOUNTS);
         XGPushManager.upsertAccounts(reactContext, list, callback);
     }
 
@@ -222,7 +251,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < types.size(); i++) {
             set.add(types.getInt(i));
         }
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_DEL_ACCOUNTS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_DEL_ACCOUNTS);
         XGPushManager.delAccounts(reactContext, set, callback);
     }
 
@@ -231,7 +260,7 @@ public class TPushModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void clearAccounts() {
-        XGIOperateCallback callback = createCallback(Extras.XG_PUSH_DID_CLEAR_ACCOUNTS);
+        XGIOperateCallback callback = createCallback(Extras.EVENT_CLEAR_ACCOUNTS);
         XGPushManager.clearAccounts(reactContext, callback);
     }
 
@@ -256,8 +285,8 @@ public class TPushModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void enableOppoNotification(boolean enable) {
-        Log.i(TAG, "enableOppoNotification()");
+    public void enableOppoPush(boolean enable) {
+        Log.i(TAG, "enableOppoPush()");
         XGPushConfig.enableOppoNotification(reactContext, enable);
     }
 
@@ -266,10 +295,5 @@ public class TPushModule extends ReactContextBaseJavaModule {
         Log.i(TAG, "setOppoPush()");
         XGPushConfig.setOppoPushAppId(reactContext, appId);
         XGPushConfig.setOppoPushAppKey(reactContext, appKey);
-    }
-
-    public void sendEvent(String eventName, @Nullable WritableMap params) {
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit(eventName, params);
     }
 }

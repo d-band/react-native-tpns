@@ -1,9 +1,12 @@
-import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
-import type {
+import {
+  EmitterSubscription,
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+} from 'react-native';
+import {
   AccountInfo,
-  AccountEvent,
-  AttrEvent,
-  TagEvent,
+  TPushEvent,
   Result,
   TokenResult,
   MessageResult,
@@ -13,22 +16,6 @@ export * from './types';
 
 const { TPushModule } = NativeModules;
 const PushEventEmitter = new NativeEventEmitter(TPushModule);
-
-const listeners = new Map();
-/// 注册推送服务失败TPNS token回调
-const OnRegisteredDeviceToken = 'onRegisteredDeviceToken';
-/// 注册推送服务成功回调
-const OnRegisteredDone = 'onRegisteredDone';
-/// 注销推送服务回调
-const UnRegistered = 'unRegistered';
-/// 收到通知消息回调
-const OnReceiveNotificationResponse = 'onReceiveNotificationResponse';
-/// 收到透传、静默消息回调
-const OnReceiveMessage = 'onReceiveMessage';
-/// 设置角标回调仅iOS
-const DidSetBadge = 'xgPushDidSetBadge';
-/// 通知点击回调
-const ClickAction = 'xgPushClickAction';
 
 export default class TPush {
   /**************************************************************************************/
@@ -159,95 +146,56 @@ export default class TPush {
   }
 
   /***********************************************************************************************/
-  /***                                     TPNS Callback                                       ***/
+  /***                                     TPNS 事件                                       ***/
   /***********************************************************************************************/
 
-  /// DeviceToken回调
-  static addOnRegisteredDeviceTokenListener(
-    callback: (data: TokenResult) => void
-  ) {
-    const listener = PushEventEmitter.addListener(
-      OnRegisteredDeviceToken,
-      callback
-    );
-    listeners.set(callback, listener);
-  }
-
-  /// 注册推送服务成功回调
-  static addOnRegisteredDoneListener(callback: (data: TokenResult) => void) {
-    const listener = PushEventEmitter.addListener(OnRegisteredDone, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 注销推送服务回调
-  static addUnRegisteredListener(callback: (data: Result) => void) {
-    const listener = PushEventEmitter.addListener(UnRegistered, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 收到通知消息回调
-  static addOnReceiveNotificationResponseListener(
-    callback: (data: MessageResult) => void
-  ) {
-    const listener = PushEventEmitter.addListener(
-      OnReceiveNotificationResponse,
-      callback
-    );
-    listeners.set(callback, listener);
-  }
-
-  /// 收到透传、静默消息回调
-  static addOnReceiveMessageListener(callback: (data: MessageResult) => void) {
-    const listener = PushEventEmitter.addListener(OnReceiveMessage, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 通知点击回调
-  static addClickActionListener(callback: (data: MessageResult) => void) {
-    const listener = PushEventEmitter.addListener(ClickAction, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 设置角标回调（仅iOS）
-  static addDidSetBadgeListener(callback: (data: Result) => void) {
-    const listener = PushEventEmitter.addListener(DidSetBadge, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 账号相关事件
-  static addAccountListener(
-    event: AccountEvent,
+  /// 添加事件
+  static addListener(
+    event: TPushEvent,
     callback: (data: Result) => void
-  ) {
-    const listener = PushEventEmitter.addListener(event, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 标签相关事件
-  static addTagListener(event: TagEvent, callback: (data: Result) => void) {
-    const listener = PushEventEmitter.addListener(event, callback);
-    listeners.set(callback, listener);
-  }
-
-  /// 属性相关事件
-  static addAttrListener(event: AttrEvent, callback: (data: Result) => void) {
-    const listener = PushEventEmitter.addListener(event, callback);
-    listeners.set(callback, listener);
+  ): EmitterSubscription {
+    const subscription = PushEventEmitter.addListener(event, callback);
+    TPushModule.startListen(event);
+    return subscription;
   }
 
   /// 移除事件
-  static removeListener(callback: (data: any) => void) {
-    if (listeners.has(callback)) {
-      listeners.get(callback).remove();
-      listeners.delete(callback);
-    }
+  static removeListener(event: TPushEvent, callback: (data: any) => void) {
+    PushEventEmitter.removeListener(event, callback);
+  }
+  // 按名称移除所有事件
+  static removeListeners(event: TPushEvent) {
+    PushEventEmitter.removeAllListeners(event);
   }
   // 移除所有事件
   static removeAllListeners() {
-    for (const fn of listeners.values()) {
-      fn.remove();
-    }
-    listeners.clear();
+    Object.values(TPushEvent).forEach((v) => {
+      PushEventEmitter.removeAllListeners(v);
+    });
+  }
+
+  static onRegister(
+    callback: (data: TokenResult) => void
+  ): EmitterSubscription {
+    return TPush.addListener(TPushEvent.REGISTER, callback);
+  }
+
+  static onNoticeReceived(
+    callback: (data: MessageResult) => void
+  ): EmitterSubscription {
+    return TPush.addListener(TPushEvent.NOTICE_RECEIVED, callback);
+  }
+
+  static onNoticeClicked(
+    callback: (data: MessageResult) => void
+  ): EmitterSubscription {
+    return TPush.addListener(TPushEvent.NOTICE_CLICKED, callback);
+  }
+
+  static onMessageReceived(
+    callback: (data: MessageResult) => void
+  ): EmitterSubscription {
+    return TPush.addListener(TPushEvent.MESSAGE_RECEIVED, callback);
   }
 
   /***********************************************************************************************/

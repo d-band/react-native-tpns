@@ -14,7 +14,7 @@ target 'TpnsExample' do
   pod 'react-native-tpns', :path => '../..'
 
   # Enables Flipper.
-  use_flipper!()
+  use_flipper!({ 'Flipper' => '0.87.0' })
   post_install do |installer|
     react_native_post_install(installer)
   end

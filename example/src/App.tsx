@@ -8,7 +8,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import TPush, { AccountEvent, TagEvent } from 'react-native-tpns';
+import TPush, { TPushEvent } from 'react-native-tpns';
 
 const styles = StyleSheet.create({
   container: {
@@ -72,51 +72,42 @@ export default function App() {
     const appId = process.env.XG_PUSH_APP_ID;
     const appKey = process.env.XG_PUSH_APP_KEY;
     TPush.register(appId, appKey, 'tpns.sh.tencent.com');
-    TPush.addOnRegisteredDeviceTokenListener((data) => {
-      console.log('addOnRegisteredDeviceTokenListener', JSON.stringify(data));
+    TPush.onRegister((data) => {
+      console.log('onRegister', JSON.stringify(data));
     });
-    TPush.addOnRegisteredDoneListener((data) => {
-      console.log('addOnRegisteredDoneListener', JSON.stringify(data));
+    TPush.onNoticeReceived((data) => {
+      console.log('onNoticeReceived', JSON.stringify(data));
     });
-    TPush.addUnRegisteredListener((data) => {
-      console.log('addUnRegisteredListener', JSON.stringify(data));
+    TPush.onNoticeClicked((data) => {
+      console.log('onNoticeClicked', JSON.stringify(data));
     });
-    TPush.addOnReceiveNotificationResponseListener((data) => {
-      console.log(
-        'addOnReceiveNotificationResponseListener',
-        JSON.stringify(data)
-      );
-    });
-    TPush.addOnReceiveMessageListener((data) => {
-      console.log('addOnReceiveMessageListener', JSON.stringify(data));
-    });
-    TPush.addClickActionListener((data) => {
-      console.log('addClickActionListener', JSON.stringify(data));
+    TPush.onMessageReceived((data) => {
+      console.log('onMessageReceived', JSON.stringify(data));
     });
     //设置角标回调（仅iOS）
-    TPush.addDidSetBadgeListener((data) => {
-      console.log('addDidSetBadgeListener', JSON.stringify(data));
+    TPush.addListener(TPushEvent.SET_BADGE, (data) => {
+      console.log('setBadge', JSON.stringify(data));
     });
-    TPush.addAccountListener(AccountEvent.UPSERT, (data) => {
-      console.log('addAccountListener(upsert)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.UPSERT_ACCOUNTS, (data) => {
+      console.log('upsertAccounts', JSON.stringify(data));
     });
-    TPush.addAccountListener(AccountEvent.DEL, (data) => {
-      console.log('addAccountListener(del)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.DEL_ACCOUNTS, (data) => {
+      console.log('delAccounts', JSON.stringify(data));
     });
-    TPush.addAccountListener(AccountEvent.CLEAR, (data) => {
-      console.log('addAccountListener(clear)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.CLEAR_ACCOUNTS, (data) => {
+      console.log('clearAccounts', JSON.stringify(data));
     });
-    TPush.addTagListener(TagEvent.ADD, (data) => {
-      console.log('addTagListener(add)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.ADD_TAGS, (data) => {
+      console.log('addTags', JSON.stringify(data));
     });
-    TPush.addTagListener(TagEvent.SET, (data) => {
-      console.log('addTagListener(set)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.SET_TAGS, (data) => {
+      console.log('setTags', JSON.stringify(data));
     });
-    TPush.addTagListener(TagEvent.DEL, (data) => {
-      console.log('addTagListener(del)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.DEL_TAGS, (data) => {
+      console.log('delTags', JSON.stringify(data));
     });
-    TPush.addTagListener(TagEvent.CLEAR, (data) => {
-      console.log('addTagListener(clear)', JSON.stringify(data));
+    TPush.addListener(TPushEvent.CLEAR_TAGS, (data) => {
+      console.log('clearTags', JSON.stringify(data));
     });
     return () => {
       TPush.removeAllListeners();

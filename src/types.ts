@@ -19,24 +19,24 @@ export enum AccountType {
   IMEI = 1000,
 }
 
-export enum AccountEvent {
-  UPSERT = 'xgPushDidUpsertAccounts',
-  DEL = 'xgPushDidDelAccounts',
-  CLEAR = 'xgPushDidClearAccounts',
-}
-
-export enum TagEvent {
-  ADD = 'xgPushDidAddTags',
-  SET = 'xgPushDidSetTags',
-  DEL = 'xgPushDidDelTags',
-  CLEAR = 'xgPushDidClearTags',
-}
-
-export enum AttrEvent {
-  ADD = 'xgPushDidAddAttrs',
-  SET = 'xgPushDidSetAttrs',
-  DEL = 'xgPushDidDelAttrs',
-  CLEAR = 'xgPushDidClearAttrs',
+export enum TPushEvent {
+  REGISTER = 'TPushEventRegister',
+  UNREGISTER = 'TPushEventUnregister',
+  NOTICE_RECEIVED = 'TPushEventNoticeReceived', //收到推送通知
+  NOTICE_CLICKED = 'TPushEventNoticeClicked', //通知点击事件
+  MESSAGE_RECEIVED = 'TPushMessageReceived', //收到透传通知
+  SET_TAGS = 'TPushEventSetTags',
+  ADD_TAGS = 'TPushEventAddTags',
+  DEL_TAGS = 'TPushEventDelTags',
+  CLEAR_TAGS = 'TPushEventClearTags',
+  UPSERT_ACCOUNTS = 'TPushEventUpsertAccounts',
+  DEL_ACCOUNTS = 'TPushEventDelAccounts',
+  CLEAR_ACCOUNTS = 'TPushEventClearAccounts',
+  ADD_ATTRS = 'TPushEventAddAttrs',
+  SET_ATTRS = 'TPushEventSetAttrs',
+  DEL_ATTRS = 'TPushEventDelAttrs',
+  CLEAR_ATTRS = 'TPushEventClearAttrs',
+  SET_BADGE = 'TPushEventSetBadge',
 }
 
 export interface AccountInfo {
@@ -50,10 +50,10 @@ export interface Result {
 }
 
 export interface TokenResult extends Result {
-  xgToken: string;
+  token?: string;
 }
 
-export type Message = {
+export interface Message {
   msgId?: number;
   title: string;
   body: string;
@@ -76,7 +76,7 @@ export type Message = {
   mutableContent?: number;
   targetType?: number;
   pushTime?: number;
-};
+}
 
 export interface MessageResult extends Result {
   data?: Message;
