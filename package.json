@@ -1,6 +1,6 @@
 {
   "name": "react-native-tpns",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "react-native tpns plugin",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

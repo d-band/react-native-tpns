@@ -108,6 +108,14 @@ public class MessageReceiver extends XGPushBaseReceiver {
     }
 
     @Override
+    public void onQueryTagsResult(Context context, int errorCode, String msg, String s1) {
+        WritableMap map = Arguments.createMap();
+        map.putInt(Extras.CODE, errorCode);
+        map.putString(Extras.CONTENT, msg);
+        TPushModule.sendEvent(Extras.EVENT_QUERY_TAGS, map);
+    }
+
+    @Override
     public void onDeleteAttributeResult(Context context, int errorCode, String msg) {
         WritableMap map = Arguments.createMap();
         map.putInt(Extras.CODE, errorCode);

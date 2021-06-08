@@ -33,6 +33,7 @@ public interface Extras {
     String EVENT_ADD_TAGS = "TPushEventAddTags";
     String EVENT_DEL_TAGS = "TPushEventDelTags";
     String EVENT_CLEAR_TAGS = "TPushEventClearTags";
+    String EVENT_QUERY_TAGS = "TPushEventQueryTags";
     String EVENT_UPSERT_ACCOUNTS = "TPushEventUpsertAccounts";
     String EVENT_DEL_ACCOUNTS = "TPushEventDelAccounts";
     String EVENT_CLEAR_ACCOUNTS = "TPushEventClearAccounts";
